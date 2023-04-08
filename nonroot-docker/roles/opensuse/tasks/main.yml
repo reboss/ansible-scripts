@@ -1,0 +1,52 @@
+---
+- name: Install Docker on OpenSUSE
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Install required packages for Docker
+      zypper:
+        name:
+          - curl
+          - sudo
+          - gcc
+          - make
+          - iptables
+          - iptables-devel
+          - apparmor
+          - apparmor-parser
+          - apparmor-utils
+          - git-core
+          - gcc-c++
+          - libseccomp-devel
+          - libtool
+          - autoconf
+          - automake
+          - libcap-devel
+          - libtool-ltdl-devel
+          - btrfsprogs
+        state: present
+
+    - name: Add Docker GPG key
+      rpm_key:
+        key: https://download.docker.com/linux/openSUSE/gpg
+
+    - name: Add Docker repository
+      zypper_repository:
+        name: Docker
+        baseurl: https://download.docker.com/linux/openSUSE/{{ ansible_distribution_release }}
+        gpgcheck: yes
+        gpgkey: https://download.docker.com/linux/openSUSE/gpg
+        enabled: yes
+
+    - name: Install Docker
+      zypper:
+        name: docker-ce
+        state: present
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
